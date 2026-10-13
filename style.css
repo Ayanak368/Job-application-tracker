@@ -490,6 +490,54 @@ select:focus-visible {
 
 
 /* ========================================
+   9. job filtering
+======================================== */
+
+
+.job-filters {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.job-filters input,
+.job-filters select {
+    padding: 12px 15px;
+    border: 1px solid #dcd5ed;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #514968;
+    font-size: 14px;
+}
+
+.job-filters input {
+    flex: 1;
+    min-width: 0;
+}
+
+.job-filters select {
+    width: 180px;
+}
+
+.job-filters input:focus,
+.job-filters select:focus {
+    outline: 2px solid #c4b3ff;
+    border-color: #7047eb;
+}
+
+@media (max-width: 600px) {
+    .job-filters {
+        flex-direction: column;
+    }
+
+    .job-filters select {
+        width: 100%;
+    }
+}
+
+
+/* ========================================
    9. MODAL CONTENT
 ======================================== */
 

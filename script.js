@@ -9,10 +9,13 @@ const modal = document.querySelector("#job-modal");
 const form = document.querySelector("#job-form");
 const jobList = document.querySelector("#job-list");
 
+const searchInput = document.querySelector("#search-input");
+const statusFilter = document.querySelector("#status-filter");
 
-/* 2. Store the first job */
 
-const jobs = JSON.parse(localStorage.getItem("jobs"))||[
+/* 2. Store jobs */
+
+let jobs = JSON.parse(localStorage.getItem("jobs")) || [
     {
         company: "Google",
         role: "Python Developer",
@@ -21,90 +24,108 @@ const jobs = JSON.parse(localStorage.getItem("jobs"))||[
     }
 ];
 
+// Save the initial job data
+localStorage.setItem("jobs", JSON.stringify(jobs));
 
-/* 3. Open modal from the Add Job button */
 
-addButton.addEventListener("click", function () {
+/* 3. Open modal */
+
+addButton.addEventListener("click", function() {
+    modal.classList.add("show");
+});
+
+heroAddButton.addEventListener("click", function() {
     modal.classList.add("show");
 });
 
 
-/* 4. Open modal from the Hero button */
+/* 4. Close modal */
 
-heroAddButton.addEventListener("click", function () {
-    modal.classList.add("show");
-});
-
-
-/* 5. Close modal */
-
-closeButton.addEventListener("click", function () {
+closeButton.addEventListener("click", function() {
     modal.classList.remove("show");
 });
 
 
-/* 6. Display jobs on the webpage */
+/* 5. Display, search and filter jobs */
 
 function displayJobs() {
-
-    // Remove the old job cards
     jobList.innerHTML = "";
 
-    // Loop through the jobs array
+    // Get search and filter values
+    const searchText = searchInput.value.toLowerCase();
+    const selectedStatus = statusFilter.value;
+
+    // Check each job
     for (const job of jobs) {
 
-        // Create a job card
-        const card = document.createElement("div");
-        card.classList.add("job-card");
+        // Search by company, role or location
+        const matchesSearch =
+            job.company.toLowerCase().includes(searchText) ||
+            job.role.toLowerCase().includes(searchText) ||
+            job.location.toLowerCase().includes(searchText);
 
-        // Company name
-        const heading = document.createElement("h3");
-        heading.textContent = job.company;
+        // Check application status
+        const matchesStatus =
+            selectedStatus === "All" ||
+            job.status === selectedStatus;
 
-        // Job role
-        const role = document.createElement("p");
-        role.textContent = "Role: " + job.role;
+        // Display only matching jobs
+        if (matchesSearch && matchesStatus) {
 
-        // Job location
-        const location = document.createElement("p");
-        location.textContent = "Location: " + job.location;
+            const card = document.createElement("div");
+            card.classList.add("job-card");
 
-        // Application status
-        const status = document.createElement("p");
-        status.textContent = "Status: " + job.status;
+            const heading = document.createElement("h3");
+            heading.textContent = job.company;
 
-        // Add details to the card
-        card.appendChild(heading);
-        card.appendChild(role);
-        card.appendChild(location);
-        card.appendChild(status);
+            const role = document.createElement("p");
+            role.textContent = "Role: " + job.role;
 
-        // Add the card to the webpage
-        jobList.appendChild(card);
+            const location = document.createElement("p");
+            location.textContent = "Location: " + job.location;
+
+            const status = document.createElement("p");
+            status.textContent = "Status: " + job.status;
+
+            card.appendChild(heading);
+            card.appendChild(role);
+            card.appendChild(location);
+            card.appendChild(status);
+
+            jobList.appendChild(card);
+        }
+    }
+
+    // Show message if no jobs match
+    if (jobList.innerHTML === "") {
+        jobList.textContent = "No matching jobs found.";
     }
 }
 
 
-/* 7. Handle form submission */
+/* 6. Search and filter events */
 
-form.addEventListener("submit", function (event) {
+searchInput.addEventListener("input", displayJobs);
+statusFilter.addEventListener("change", displayJobs);
 
-    // Prevent page refresh
+
+/* 7. Add a new job */
+
+form.addEventListener("submit", function(event) {
     event.preventDefault();
 
-    // Get values from the form
     const company = document.querySelector("#company").value.trim();
     const role = document.querySelector("#role").value.trim();
     const location = document.querySelector("#location").value.trim();
     const status = document.querySelector("#status").value;
 
-    // Check whether required fields are empty
+    // Check empty fields
     if (company === "" || role === "" || location === "") {
         alert("Please fill in all fields.");
         return;
     }
 
-    // Create a new job object
+    // Create a job object
     const newJob = {
         company: company,
         role: role,
@@ -112,22 +133,21 @@ form.addEventListener("submit", function (event) {
         status: status
     };
 
-    // Add the new job to the array
+    // Add job to the array
     jobs.push(newJob);
 
+    // Save jobs
     localStorage.setItem("jobs", JSON.stringify(jobs));
 
-    // Update the webpage
+    // Update job cards
     displayJobs();
 
-    // Clear the form
+    // Clear form and close modal
     form.reset();
-
-    // Close the modal
     modal.classList.remove("show");
 });
 
 
-/* 8. Display jobs when the page loads */
+/* 8. Display jobs when page loads */
 
 displayJobs();
